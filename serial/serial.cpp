@@ -8,8 +8,10 @@
 #include <cstring>
 #include <vector>
 
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 typedef struct {
 	int u,v;
