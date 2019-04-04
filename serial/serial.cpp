@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <cstring>
 #include <vector>
+
+
 using namespace std;
 
 typedef struct {
@@ -60,23 +62,31 @@ inline void removeEdge(int u, int v) {
 }
 
 void readGraph() {
-	fin >> n >> m;
+	/***************************************************/
+	string temp;
+	getline(fin,temp);
+	getline(fin,temp);
+	int temp_e;
+	/***************************************************/
+	fin >> n >> n >> m ;
 	int vMax=0;
 	int u,v;
 	for (int i=0; i<m; ++i) {
-		fin >> u >> v;
+		fin >> u >> v >>temp_e;
 		if (u==v) continue;
 		vMax=max(vMax,max(u,v));
 	}
 	n=vMax+1;
 	fin.close();fin.open(infile.c_str());
 	int junk;
-	fin>>junk>>junk;
+	getline(fin,temp);
+	getline(fin,temp);
+	fin>>junk>>junk>>junk;
 	deg.clear(); deg.resize(n,0);
 	adj.resize(n);
 	for (int i=0; i<n; ++i) adj[i].clear();
 	for (int i=0; i<m; ++i) {
-		fin >> u >> v;
+		fin >> u >> v >> temp_e;
 		if (u==v) continue;
 		if (adj[u].find(v)==adj[u].end()) {
 			adj[u][v]=0;
@@ -213,10 +223,10 @@ void trussDecomp() {
 
 // para1: name of dataset
 int main(int argc, char * argv[]) {
-	
+
 	string dataset(argv[1]);
-	infile=dataset+".txt";
-	outfile=dataset+"-out.txt";
+	infile=dataset;//+".txt";
+	outfile="answer.txt";//dataset+"-out.txt";
 	fin.open(infile.c_str());
 	fout.open(outfile.c_str());
 
