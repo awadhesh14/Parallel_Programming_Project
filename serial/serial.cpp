@@ -225,10 +225,13 @@ void trussDecomp() {
 
 // para1: name of dataset
 int main(int argc, char * argv[]) {
-
-	string dataset(argv[1]);
-	infile=dataset;//+".txt";
-	outfile="answer.txt";//dataset+"-out.txt";
+//command_to_run   ./serial.o ../test_dir.txt test_dir
+	//string dataset(argv[1]);
+	string name(argv[1]);
+	//infile=dataset;//+".txt";
+	infile="../../input/"+name+".mmio" ;       //     ../../input/amazon0302_adj.mmio
+	//cout<<infile<<endl;
+	outfile="../../output/serial/" + name +".txt";//dataset+"-out.txt";
 	fin.open(infile.c_str());
 	fout.open(outfile.c_str());
 
