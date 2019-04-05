@@ -8,7 +8,7 @@
 #include <cstring>
 #include <vector>
 
-#include <chrono>
+#include <chrono>  //this is from https://stackoverflow.com/questions/22387586/measuring-execution-time-of-a-function-in-c
 
 using namespace std;
 using namespace std::chrono;
@@ -235,11 +235,18 @@ int main(int argc, char * argv[]) {
 	fin.open(infile.c_str());
 	fout.open(outfile.c_str());
 
+	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	readGraph();
+	high_resolution_clock::time_point t2 = high_resolution_clock::now();
 	reorder();
+	high_resolution_clock::time_point t3 = high_resolution_clock::now();
 	countTriangles();
+	high_resolution_clock::time_point t4 = high_resolution_clock::now();
 	binSort();
+	high_resolution_clock::time_point t5 = high_resolution_clock::now();
 	trussDecomp();
+	high_resolution_clock::time_point t6 = high_resolution_clock::now();
+
 
 	for (int i=0;i<maxClass; ++i)
 		if (cntClass[i]>0)
@@ -247,6 +254,17 @@ int main(int argc, char * argv[]) {
 
 	fin.close();
 	fout.close();
+
+	auto rg = duration_cast<microseconds>( t2 - t1 ).count();
+	auto re = duration_cast<microseconds>( t3 - t2 ).count();
+	auto ct = duration_cast<microseconds>( t4 - t3 ).count();
+	auto bs = duration_cast<microseconds>( t5 - t4 ).count();
+	auto td = duration_cast<microseconds>( t6 - t5 ).count();
+
+	std::ofstream outfile;
+	outfile.open("../../output/serial/duration.txt", std::ios_base::app)
+	outfile << name << "\t" << rg << "\t" << re << "\t" << ct << "\t" << bs << "\t" << td<<endl;
+	outfile.close();
 
 	return 0;
 }
