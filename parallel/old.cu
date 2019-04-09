@@ -75,6 +75,7 @@ int load_graph_from_file(char *filename, graph_t *g) {
     //double t0 = timer();
 
     //Read N and M
+  
     fscanf(infp, "%ld %ld\n", &(g->n), &(g->m));
     printf("N: %ld, M: %ld \n", g->n, g->m);
 
