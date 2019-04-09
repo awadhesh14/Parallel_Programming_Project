@@ -1,13 +1,13 @@
 CC=nvcc
 
-all: main
-	qsub samole-script
+all: old
+	qsub old-script
 
-main: main.o
-	$(CC) -o main main.o
+old: old.o
+	$(CC) -o old old.o
 
-main.o: main.cu
-	$(CC) -o main.o -c main.cu
+old.o: old.cu
+	$(CC) -o old.o -c old.cu
 
 clean:
-	rm -f main.o main
+	rm -f old.o old
