@@ -5,11 +5,15 @@
 #include <functional>
 #include <iostream>
 
+#include <fstream>
+
+
 #include <climits>
 #include<cuda.h>
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>
 #include <math.h>
+
 
 #define GS 1024
 #define BS 1024
@@ -31,7 +35,7 @@ typedef struct{
   eid_t *rows;  //indices of the non empty rows
 } G;
 
-
+#include "read_graph.hpp"
 
 
 int main(int argc, char *argv[]){
@@ -40,7 +44,7 @@ int main(int argc, char *argv[]){
   int gs=GS;
   int k = 68;
 
-  read_graph("../../test_dir.txt",&g);
+  readGraph("../../test_dir.txt",&g);
   cout<<"checkpoint 1"<<endl;
 
 

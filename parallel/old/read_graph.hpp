@@ -2,7 +2,7 @@ ifstream fin;
 ofstream fout;
 string infile, outfile;
 
-int readGraph(char *filename, G *g){
+void readGraph(char *filename, G *g){
   cout<<"inside readGraph"<<endl;
   // infile ="../../../input/"      + name + ".mmio" ; //  ../../../input/amazon0302_adj.mmio
   // outfile="../../output/serial/" + name + ".txt"  ; //  dataset+"-out.txt";
@@ -15,25 +15,111 @@ int readGraph(char *filename, G *g){
   getline(fin,temp); // readint the description line 1
   getline(fin,temp); // reading the description line 2
 
-  int temp_e;          // temperory edge because edge weight is useless
-  int u,v;             // the v1,v2 of edges
+  var temp_e;          // temperory edge because edge weight is useless
+  var u,v;             // the v1,v2 of edges
 
-  fin >> g->n >> g->n >> g->m ;       // reading the MxN graph and edges
-  cout<< g->n<<" "<< g->m<<endl;
-
-
-
-  bool flag[g->n];  // tells whether particular row is empty or not
-  var m = 0;        // m -> no of edges
+  fin >> g->N >> g->N >> g->M ;       // reading the MxN graph and edges
+  cout<< g->N<<" "<< g->M<<endl;      // just checking if it worked
 
 
 
+/**************************allocating & initializing all flag[N] to false**********************************/
+  bool flag[g->N];                // tells whether particular row is empty or not
+  for (var i=0 ; i < g->N ; i++) {
+      flag[i] = false;            // false means empty
+  }
 
+/**************************allocating & initializing all roff[N+1] to zero**********************************/
+  g->roff = (eid_t *) malloc((g->N + 1) * sizeof(eid_t));
+  assert(g->roff != NULL);
+  for (var i=0 ; i < g->N+1 ; i++) {
+      g->roff[i] = 0;
+  }
 
-	for (int i=0; i<m; ++i) {  // runs all the m edges
-		fin >> u >> v >>temp_e;  // reading the edgelist
-		if (u==v) continue;      //
-		vMax=max(vMax,max(u,v));
+/**************************increase row offset and set flag for non empty row********************************/
+	for (var i=0; i<g->M; ++i) {
+		fin >> u >> v >>temp_e;
+    cout<< u <<" "<<v <<endl;
+
+    if(u > v)
+      g->roff[u]++ , flag[u] = true;
+    else if(u < v)
+      g->roff[v]++ , flag[v] = true;
+
 	}
-  n=vMax+1;                  //
+
+/**********************************************************************************************************/
+  g->rows = (eid_t *) malloc((g->N) * sizeof(eid_t));
+  g->n = 0;
+
+
+  var k =0;
+  for (var i = 0; i<g->N; i++)
+   { if (flag[i] == true)
+           { g->n++;
+             g->rows[k] = i;
+             k++;
+           }
+   }
+
+/**********************************************************************************************************/
+  eid_t *temp_num_edges = (eid_t *) malloc((g->N + 1) * sizeof(eid_t));
+  assert(temp_num_edges != NULL);
+
+  temp_num_edges[0] = 0;
+  int m=0;
+  for(i = 0; i < g->N; i++) {
+      m += g->roff[i];
+      temp_num_edges[i+1] = m;
+  }
+
+/**********************************************************************************************************/
+  //Allocate space for adj
+  g->adj = (eid_t *) malloc(m * sizeof(eid_t));
+  assert(g->adj != NULL);
+
+
+ for(i= 0; i < g->N+1; i++)
+          g->roff[i] = temp_num_edges[i];
+
+/**********************************************************************************************************/
+g->rlen = (eid_t *) malloc((g->N) * sizeof(eid_t));
+k =0;
+
+for ( i = 0; i<g->N; i++)
+{ if (flag[i] == true)
+        { g->rlen[k] = g->roff[i+1] - g->roff[i];
+        }
+  else
+        g->rlen[k] = 0;
+  k++;
+}
+
+/**********************************************************************************************************/
+infp = fopen(filename, "r");
+if (infp == NULL) {
+    fprintf(stderr, "Error: could not open input file: %s.\n Exiting ...\n", filename);
+    exit(1);
+}
+//Read N and M
+fscanf(infp, "%ld %ld\n", &(g->n), &m);
+for(i = 0; i < m; i++)
+        g->adj[i] = 0;
+//Read the edges
+while( fscanf(infp, "%u %u\n", &u, &v) != EOF ) {
+    if ( u > v )
+       { g->adj[ temp_num_edges[u]  ] = v;
+         temp_num_edges[u]++;
+
+       }
+    else if (u<v)
+       {
+        g->adj[ temp_num_edges[v] ] = u;
+        temp_num_edges[v]++;
+       }
+}
+fclose( infp );
+
+/**********************************************************************************************************/
+
 }
