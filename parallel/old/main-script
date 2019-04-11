@@ -1,5 +1,5 @@
 # !/bin/sh
-#PBS -N jobOld
+#PBS -N jobMain
 
 cd /home/dtanwar/Project/Parallel_Programming_Project/parallel/old
-./old
+./main
