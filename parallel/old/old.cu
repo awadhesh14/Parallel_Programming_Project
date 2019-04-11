@@ -27,18 +27,18 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
    }
 }
 
-#define GS 1024
-#define BS 1024
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          #define GS 1024
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          #define BS 1024
 
 typedef struct {
-    var n;
-    var m;
-    var num_of_rows;
+    var n; //N vertices
+    var m; //M edges
+    var num_of_rows; //n no of nonempty rows
 
-    eid_t *rows;
-    eid_t *adj;
-    eid_t *num_edges;
-    eid_t *rlen;
+    eid_t *rows;  //rows [n]
+    eid_t *adj;   //cols [NNZ] = M (initially)
+    eid_t *num_edges; //roff [N+1]
+    eid_t *rlen;  //rlen [N]
 
 } graph_t;
 
