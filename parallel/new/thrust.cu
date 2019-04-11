@@ -4,6 +4,7 @@
 #include <sys/time.h>
 #include <functional>
 #include <iostream>
+#include <bits/stdc++.h>
 
 #include <climits>
 #include<cuda.h>
@@ -37,8 +38,8 @@ int main()
   getline(fin,temp); // readint the description line 1
   getline(fin,temp); // reading the description line 2
 
-  int temp_e;          // temperory edge because edge weight is useless
-  int u,v;             // the v1,v2 of edges
+  //int temp_e;          // temperory edge because edge weight is useless
+  int u,v,n,m;             // the v1,v2 of edges
 
   fin >> n >> n >> m ;       // reading the MxN graph and edges
   cout<< n<<" "<< m<<endl;
