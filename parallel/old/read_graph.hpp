@@ -34,7 +34,8 @@ void readGraph(char *filename, G *g){
   assert(g->roff != NULL);
   for (var i=0 ; i < g->N+1 ; i++) {
       g->roff[i] = 0;
-  }
+      cout<<g->roff[i]<<" ";
+  }cout<<endl;
 
 /**************************increase row offset and set flag for non empty row********************************/
 	for (var i=0; i<g->M; ++i) {           //thrust
@@ -68,26 +69,26 @@ void readGraph(char *filename, G *g){
   assert(temp_num_edges != NULL);
 
   temp_num_edges[0] = 0;
-  int m=0;
-  for(i = 0; i < g->N; i++) {
-      m += g->roff[i];
-      temp_num_edges[i+1] = m;
+
+  for(var i = 0; i < g->N; i++) {
+      g->nnz += g->roff[i];
+      temp_num_edges[i+1] = g->nnz;
   }
 
 /**********************************************************************************************************/
-  //Allocate space for adj
-  g->adj = (eid_t *) malloc(m * sizeof(eid_t));
-  assert(g->adj != NULL);
+  //Allocate space for cols
+  g->cols = (eid_t *) malloc(g->nnz * sizeof(eid_t));
+  assert(g->cols != NULL);
 
 
-  for(i= 0; i < g->N+1; i++)
+  for(var i= 0; i < g->N+1; i++)
     g->roff[i] = temp_num_edges[i];
 
 /**********************************************************************************************************/
   g->rlen = (eid_t *) malloc((g->N) * sizeof(eid_t));
   k =0;
 
-  for ( i = 0; i<g->N; i++){
+  for (var i = 0; i<g->N; i++){
     if (flag[i] == true)
       g->rlen[k] = g->roff[i+1] - g->roff[i];
     else
@@ -97,27 +98,27 @@ void readGraph(char *filename, G *g){
 
 /**********************************************************************************************************/
   fin.close();
-  fin.open(filename.c_str());
+  fin.open(infile.c_str());
   getline(fin,temp); // readint the description line 1
   getline(fin,temp); // reading the description line 2
 
   //Read N and M
-  //fscanf(infp, "%ld %ld\n", &(g->n), &m);
-  fin>>(g->N)>>(g->N)>>m;
-  for(i = 0; i < m; i++)
-    g->adj[i] = 0;
+  //fscanf(infp, "%ld %ld\n", &(g->n), &g->nnz);
+  fin>>(g->N)>>(g->N)>>g->nnz;
+  for(var i = 0; i < g->nnz; i++)
+    g->cols[i] = 0;
   //Read the edges
   // while( fscanf(infp, "%u %u\n", &u, &v) != EOF ) {
-  for(var i=0 ; i<m ; i++){
+  for(var i=0 ; i<g->nnz ; i++){
 
 
     fin>>u>>v;
     if(u>v){
-      g->adj[ temp_num_edges[u]  ] = v;
+      g->cols[ temp_num_edges[u]  ] = v;
       temp_num_edges[u]++;
     }
     else if (u<v){
-      g->adj[ temp_num_edges[v] ] = u;
+      g->cols[ temp_num_edges[v] ] = u;
       temp_num_edges[v]++;
     }
 
