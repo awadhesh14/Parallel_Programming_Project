@@ -14,6 +14,10 @@
 
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
+#include <thrust/sequence.h>
+#include <thrust/sort.h>
+#include <thrust/functional.h>
+
 
 
 using namespace std;
@@ -29,7 +33,7 @@ int main()
     cout<<"inside readGraph"<<endl;
   // infile ="../../../input/"      + name + ".mmio" ; //  ../../../input/amazon0302_adj.mmio
   // outfile="../../output/serial/" + name + ".txt"  ; //  dataset+"-out.txt";
-  infile ="../../test_dir.txt";
+  infile ="ip.txt";
 
   fin.open(infile.c_str());    // opening the input file
   fout.open(outfile.c_str());  // opening the output file
@@ -46,17 +50,35 @@ int main()
 
   //int hist[n], srcp[n], dstp[n];
 
-  thrust::host_vector<int> hist(n);
+  thrust::device_vector<int> hist(n);
+  thrust::device_vector<int> srcp(n);
+  thrust::device_vector<int> dstp(n);
 
   int i;
+
+  thrust::fill(hist.begin(), hist.begin() + n, 0);
+
   for(i=0;i<m;i++)
   {
       fin>>u>>v;
       hist[u]++;
       hist[v]++;
+
   }
-  for(int i = 0; i < hist.size(); i++)
+  for( i = 0; i < hist.size(); i++)
         cout << "hist[" << i << "] = " << hist[i] << endl;
+
+    thrust::sequence(srcp.begin(), srcp.end(),0);
+
+    for(i = 0; i < srcp.size(); i++)
+    cout << "srcp[" << i << "] = " << srcp[i] << endl;
+
+    thrust::sort_by_key(hist.begin(), hist.begin() + n, srcp.begin(),thrust::greater<int>());
+
+    for(i = 0; i < srcp.size(); i++)
+    cout << "srcp[" << i << "] = " << srcp[i] << endl;
+
+
 
 return 0;
 
