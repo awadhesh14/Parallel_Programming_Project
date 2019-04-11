@@ -37,7 +37,7 @@ void readGraph(char *filename, G *g){
   }
 
 /**************************increase row offset and set flag for non empty row********************************/
-	for (var i=0; i<g->M; ++i) {
+	for (var i=0; i<g->M; ++i) {           //thrust
 		fin >> u >> v >>temp_e;
     cout<< u <<" "<<v <<endl;
 
@@ -48,21 +48,22 @@ void readGraph(char *filename, G *g){
 
 	}
 
-/**********************************************************************************************************/
+/**********************populates indexs of nonzero rows rows[n] and initilizes n (no of non empty rows)******/
   g->rows = (eid_t *) malloc((g->N) * sizeof(eid_t));
   g->n = 0;
 
 
   var k =0;
-  for (var i = 0; i<g->N; i++)
-   { if (flag[i] == true)
-           { g->n++;
-             g->rows[k] = i;
-             k++;
-           }
+  for (var i = 0; i<g->N; i++){
+     if (flag[i] == true){
+       g->n++;                            //thrust
+       g->rows[k] = i;                    //thrust
+       k++;
+     }
    }
 
 /**********************************************************************************************************/
+//converting the roff from degree holder to actual usage.
   eid_t *temp_num_edges = (eid_t *) malloc((g->N + 1) * sizeof(eid_t));
   assert(temp_num_edges != NULL);
 
@@ -79,46 +80,50 @@ void readGraph(char *filename, G *g){
   assert(g->adj != NULL);
 
 
- for(i= 0; i < g->N+1; i++)
-          g->roff[i] = temp_num_edges[i];
+  for(i= 0; i < g->N+1; i++)
+    g->roff[i] = temp_num_edges[i];
 
 /**********************************************************************************************************/
-g->rlen = (eid_t *) malloc((g->N) * sizeof(eid_t));
-k =0;
+  g->rlen = (eid_t *) malloc((g->N) * sizeof(eid_t));
+  k =0;
 
-for ( i = 0; i<g->N; i++)
-{ if (flag[i] == true)
-        { g->rlen[k] = g->roff[i+1] - g->roff[i];
-        }
-  else
-        g->rlen[k] = 0;
-  k++;
-}
+  for ( i = 0; i<g->N; i++){
+    if (flag[i] == true)
+      g->rlen[k] = g->roff[i+1] - g->roff[i];
+    else
+      g->rlen[k] = 0;
+    k++;
+  }
 
 /**********************************************************************************************************/
-infp = fopen(filename, "r");
-if (infp == NULL) {
-    fprintf(stderr, "Error: could not open input file: %s.\n Exiting ...\n", filename);
-    exit(1);
-}
-//Read N and M
-fscanf(infp, "%ld %ld\n", &(g->n), &m);
-for(i = 0; i < m; i++)
-        g->adj[i] = 0;
-//Read the edges
-while( fscanf(infp, "%u %u\n", &u, &v) != EOF ) {
-    if ( u > v )
-       { g->adj[ temp_num_edges[u]  ] = v;
-         temp_num_edges[u]++;
+  fin.close();
+  fin.open(filename.c_str());
+  getline(fin,temp); // readint the description line 1
+  getline(fin,temp); // reading the description line 2
 
-       }
-    else if (u<v)
-       {
-        g->adj[ temp_num_edges[v] ] = u;
-        temp_num_edges[v]++;
-       }
-}
-fclose( infp );
+  //Read N and M
+  //fscanf(infp, "%ld %ld\n", &(g->n), &m);
+  fin>>(g->N)>>(g->N)>>m;
+  for(i = 0; i < m; i++)
+    g->adj[i] = 0;
+  //Read the edges
+  // while( fscanf(infp, "%u %u\n", &u, &v) != EOF ) {
+  for(var i=0 ; i<m ; i++){
+
+
+    fin>>u>>v;
+    if(u>v){
+      g->adj[ temp_num_edges[u]  ] = v;
+      temp_num_edges[u]++;
+    }
+    else if (u<v){
+      g->adj[ temp_num_edges[v] ] = u;
+      temp_num_edges[v]++;
+    }
+
+
+  }
+  fin.close();
 
 /**********************************************************************************************************/
 
