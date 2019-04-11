@@ -7,7 +7,7 @@ old: old.o
 	$(CC) -o old old.o
 
 old.o: old.cu
-	$(CC) -o old.o -c old.cu ../../test_dir.txt
+	$(CC) -o old.o -c old.cu
 
 clean:
 	rm -f old.o old
