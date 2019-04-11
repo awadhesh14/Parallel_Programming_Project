@@ -541,11 +541,11 @@ int main(int argc, char *argv[]) {
     int gs=GS;
     int k = 68;
 
-    if( argc < 2 )
-    {
-	fprintf(stderr, "%s <Graph file>\n", argv[0]);
-	exit(1);
-    }
+  //   if( argc < 2 )
+  //   {
+	// fprintf(stderr, "%s <Graph file>\n", argv[0]);
+	// exit(1);
+  //   }
 
 
         load_graph_from_file(/*argv[1]*/"../../test_dir.txt", &g);
