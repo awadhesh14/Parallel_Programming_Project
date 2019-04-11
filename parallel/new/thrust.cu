@@ -78,6 +78,15 @@ int main()
     for(i = 0; i < srcp.size(); i++)
     cout << "srcp[" << i << "] = " << srcp[i] << endl;
 
+    for(i=0;i<n;i++)
+    {
+        dstp[srcp[i]]=i;
+    }
+
+    
+
+
+
 
 
 return 0;
