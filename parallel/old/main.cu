@@ -28,6 +28,7 @@ typedef struct{
   var N;  //no of vertices
   var M;  //no of edges
   var n; //no of non empty rows
+  var nnz;
 
   eid_t *cols;  //nonzeroes in each row (colind)
   eid_t *roff;  //startig offset of each row (rowoff)
@@ -46,6 +47,27 @@ int main(int argc, char *argv[]){
 
   readGraph("../../test_dir.txt",&g);
   cout<<"checkpoint 1"<<endl;
+
+  cout<<"rows"<<endl;
+  for (var i=0;i<(g.n) ;i++){
+    cout<<g.rows[i]<<" ";
+  }
+  cout<<endl;
+  cout<<"cols"<<endl;
+  for (var i=0;i<(g.nnz) ;i++){
+    cout<<g.cols[i]<<" ";
+  }
+  cout<<endl;
+  cout<<"roff"<<endl;
+  for (var i=0;i<(g.N+1) ;i++){
+    cout<<g.roff[i]<<" ";
+  }
+  cout<<endl;
+  cout<<"rlen"<<endl;
+  for (var i=0;i<(g.N) ;i++){
+    cout<<g.rlen[i]<<" ";
+  }
+  cout<<endl;
 
 
 }
