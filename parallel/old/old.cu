@@ -27,8 +27,8 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
    }
 }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          #define GS 1024
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          #define BS 1024
+#define GS 1024
+#define BS 1024
 
 typedef struct {
     var n; //N vertices
