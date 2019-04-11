@@ -52,8 +52,10 @@ int main()
       hist[u]++;
       hist[v]++;
   }
-  
+  for(int i = 0; i < H.size(); i++)
+        cout << "hist[" << i << "] = " << hist[i] << endl;
 
+return 0;
 
 
 }
