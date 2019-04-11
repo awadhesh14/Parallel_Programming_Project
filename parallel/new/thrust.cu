@@ -17,12 +17,14 @@
 
 using namespace std;
 
-ifstream fin;
-ofstream fout;
-string infile, outfile;
+
 
 int main()
 {
+    ifstream fin;
+    ofstream fout;
+    string infile, outfile;
+
     cout<<"inside readGraph"<<endl;
   // infile ="../../../input/"      + name + ".mmio" ; //  ../../../input/amazon0302_adj.mmio
   // outfile="../../output/serial/" + name + ".txt"  ; //  dataset+"-out.txt";
@@ -38,12 +40,12 @@ int main()
   int temp_e;          // temperory edge because edge weight is useless
   int u,v;             // the v1,v2 of edges
 
-  fin >> g->n >> g->n >> g->m ;       // reading the MxN graph and edges
-  cout<< g->n<<" "<< g->m<<endl;
+  fin >> n >> n >> m ;       // reading the MxN graph and edges
+  cout<< n<<" "<< m<<endl;
 
   //int hist[n], srcp[n], dstp[n];
 
-  thrust::host_vector<int> hist(g->n);
+  thrust::host_vector<int> hist(n);
 
   int i;
   for(i=0;i<m;i++)
@@ -52,7 +54,7 @@ int main()
       hist[u]++;
       hist[v]++;
   }
-  for(int i = 0; i < H.size(); i++)
+  for(int i = 0; i < hist.size(); i++)
         cout << "hist[" << i << "] = " << hist[i] << endl;
 
 return 0;
