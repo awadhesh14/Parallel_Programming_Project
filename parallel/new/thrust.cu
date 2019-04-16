@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <bits/stdc++.h>
+#include <algorithm>
 
 #include <climits>
 #include<cuda.h>
@@ -83,9 +84,19 @@ int main()
         dstp[srcp[i]]=i;
     }
 
-    
-
-
+    fin.close();
+    fin.open(infile.c_str());
+    getline(fin,temp);        // readint the description line 1
+    getline(fin,temp);        // reading the description line 2
+    fin >> n >> n >> m ;      // reading the MxN graph and edges
+    cout<< n<<" "<< m<<endl;
+    int u_,v_;
+    for(i=0;i<m;i++){
+        fin>>u>>v;
+        u_ = dstp[u];
+        v_ = dstp[v];
+        
+    }
 
 
 
@@ -93,4 +104,3 @@ return 0;
 
 
 }
-

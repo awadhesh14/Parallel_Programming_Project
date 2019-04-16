@@ -43,7 +43,7 @@ int main(int argc, char *argv[]){
 
   G g;
   int gs=GS;
-  int k = 68;
+  int k = 100;
 
   readGraph("../../test_dir.txt",&g);
   cout<<"checkpoint 1"<<endl;

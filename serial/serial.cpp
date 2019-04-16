@@ -262,7 +262,7 @@ int main(int argc, char * argv[]) {
 	auto td = duration_cast<microseconds>( t6 - t5 ).count();
 
 	std::ofstream outfile;
-	outfile.open("../../output/serial/duration.txt", std::ios_base::app)
+	outfile.open("../../output/serial/duration.txt", std::ios_base::app);
 	outfile << name << "\t" << rg << "\t" << re << "\t" << ct << "\t" << bs << "\t" << td<<endl;
 	outfile.close();
 
