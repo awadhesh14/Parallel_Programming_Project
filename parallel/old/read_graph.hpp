@@ -2,7 +2,7 @@ ifstream fin;
 ofstream fout;
 string infile, outfile;
 
-void readGraph(char *filename, G *g){
+void readGraph(string filename, G *g){
   cout<<"inside readGraph"<<endl;
   // infile ="../../../input/"      + name + ".mmio" ; //  ../../../input/amazon0302_adj.mmio
   // outfile="../../output/serial/" + name + ".txt"  ; //  dataset+"-out.txt";
@@ -15,80 +15,75 @@ void readGraph(char *filename, G *g){
   getline(fin,temp); // readint the description line 1
   getline(fin,temp); // reading the description line 2
 
-  var temp_e;          // temperory edge because edge weight is useless
+  var temp_edge;          // temperory edge because edge weight is useless
   var u,v;             // the v1,v2 of edges
 
-  fin >> g->N >> g->N >> g->M ;       // reading the MxN graph and edges
-  cout<< g->N<<" "<< g->M<<endl;      // just checking if it worked
+  fin >> g->V >> g->V >> g->E ;       // reading the MxN graph and edges
+  cout<< g->V<<" "<< g->E<<endl;      // just checking if it worked
 
 
 
-/**************************allocating & initializing all flag[N] to false**********************************/
-  bool flag[g->N];                // tells whether particular row is empty or not
-  for (var i=0 ; i < g->N ; i++) {
+/**************************allocating & initializing all flag[V] to false**********************************/
+  bool flag[g->V];                // tells whether particular row is empty or not
+  for (var i=0 ; i < g->V ; i++) {
       flag[i] = false;            // false means empty
   }
 
-/**************************allocating & initializing all roff[N+1] to zero**********************************/
-  g->roff = (eid_t *) malloc((g->N + 1) * sizeof(eid_t));
+/**************************allocating & initializing all roff[V+1] to zero**********************************/
+  g->roff = (uui *) malloc((g->V + 1) * sizeof(uui));
   assert(g->roff != NULL);
-  for (var i=0 ; i < g->N+1 ; i++) {
+  for (var i=0 ; i < g->V+1 ; i++) {
       g->roff[i] = 0;
-      cout<<g->roff[i]<<" ";
+      //cout<<g->roff[i]<<" ";
   }cout<<endl;
 
 /**************************increase row offset and set flag for non empty row********************************/
-	for (var i=0; i<g->M; ++i) {           //thrust
-		fin >> u >> v >>temp_e;
+	for (var i=0; i<g->E; ++i) {           //thrust
+		fin >> u >> v >>temp_edge;
     cout<< u <<" "<<v <<endl;
 
     if(u > v)
-      g->roff[u]++ , flag[u] = true;
+      g->roff[u+1]++ , flag[u] = true;
     else if(u < v)
-      g->roff[v]++ , flag[v] = true;
+      g->roff[v+1]++ , flag[v] = true;
 
 	}
 
 /**********************populates indexs of nonzero rows rows[n] and initilizes n (no of non empty rows)******/
-  g->rows = (eid_t *) malloc((g->N) * sizeof(eid_t));
+  g->rows = (uui *) malloc((g->V) * sizeof(uui));
   g->n = 0;
 
 
   var k =0;
-  for (var i = 0; i<g->N; i++){
+  for (var i = 0; i<g->V; i++){
      if (flag[i] == true){
        g->n++;                            //thrust
-       g->rows[k] = i;                    //thrust
-       k++;
+       g->rows[k++] = i;                    //thrust
      }
    }
 
 /**********************************************************************************************************/
 //converting the roff from degree holder to actual usage.
-  eid_t *temp_num_edges = (eid_t *) malloc((g->N + 1) * sizeof(eid_t));
+  uui *temp_num_edges = (uui *) malloc((g->V + 1) * sizeof(uui));
   assert(temp_num_edges != NULL);
 
   temp_num_edges[0] = 0;
-
-  for(var i = 0; i < g->N; i++) {
-      g->nnz += g->roff[i];
-      temp_num_edges[i+1] = g->nnz;
+  //g->E= 0;
+  k=0;
+  for(var i = 0; i < g->V; i++) {
+    //  g->E += g->roff[i];
+      k += g->roff[i+1];
+      temp_num_edges[i+1] =k;
   }
 
-/**********************************************************************************************************/
-  //Allocate space for cols
-  g->cols = (eid_t *) malloc(g->nnz * sizeof(eid_t));
-  assert(g->cols != NULL);
-
-
-  for(var i= 0; i < g->N+1; i++)
+  for(var i= 0; i < g->V+1; i++)
     g->roff[i] = temp_num_edges[i];
 
 /**********************************************************************************************************/
-  g->rlen = (eid_t *) malloc((g->N) * sizeof(eid_t));
+  g->rlen = (uui *) malloc((g->V) * sizeof(uui));
   k =0;
 
-  for (var i = 0; i<g->N; i++){
+  for (var i = 0; i<g->V; i++){
     if (flag[i] == true)
       g->rlen[k] = g->roff[i+1] - g->roff[i];
     else
@@ -97,28 +92,32 @@ void readGraph(char *filename, G *g){
   }
 
 /**********************************************************************************************************/
+  //Allocate space for colind
+  g->colind = (uui *) malloc(g->E * sizeof(uui));
+  assert(g->colind != NULL);
+
   fin.close();
   fin.open(infile.c_str());
   getline(fin,temp); // readint the description line 1
   getline(fin,temp); // reading the description line 2
 
-  //Read N and M
-  //fscanf(infp, "%ld %ld\n", &(g->n), &g->nnz);
-  fin>>(g->N)>>(g->N)>>g->nnz;
-  for(var i = 0; i < g->nnz; i++)
-    g->cols[i] = 0;
+  //Read V and E
+  //fscanf(infp, "%ld %ld\n", &(g->n), &g->E);
+  fin>>(g->V)>>(g->V)>>g->E;
+  for(var i = 0; i < g->E; i++)
+    g->colind[i] = 0;
   //Read the edges
   // while( fscanf(infp, "%u %u\n", &u, &v) != EOF ) {
-  for(var i=0 ; i<g->nnz ; i++){
+  for(var i=0 ; i<g->E ; i++){
 
 
-    fin>>u>>v;
+    fin>>u>>v>>temp_edge;
     if(u>v){
-      g->cols[ temp_num_edges[u]  ] = v;
+      g->colind[ temp_num_edges[u]  ] = v;
       temp_num_edges[u]++;
     }
     else if (u<v){
-      g->cols[ temp_num_edges[v] ] = u;
+      g->colind[ temp_num_edges[v] ] = u;
       temp_num_edges[v]++;
     }
 
