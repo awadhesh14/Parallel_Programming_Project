@@ -447,7 +447,7 @@ int main(int argc, char *argv[]) {
 
   graph_t g;
   int gs=GS;
-  int k = 68;
+  int k = 3;
 
   //   if( argc < 2 )
   //   {
@@ -456,7 +456,7 @@ int main(int argc, char *argv[]) {
   //   }
 
 
-  load_graph_from_file(/*argv[1]*/"../../test_dir.txt", &g);
+  load_graph_from_file(argv[1], &g);
   cout<<"File read complete"<<endl;
 
 

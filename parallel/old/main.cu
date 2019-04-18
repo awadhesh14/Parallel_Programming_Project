@@ -20,8 +20,8 @@
 #include <thrust/device_vector.h>
 
 
-#define GS 10
-#define BS 1
+#define GS 5
+#define BS 5
 
 using namespace std;
 
@@ -66,13 +66,31 @@ __global__ void getmajorsupport(uui* d_colind, uui* d_roff, uui* d_rows, uui* d_
 
   __shared__ int broadcast[BS]; //TODO: 2d array! why?
 
-  if(threadIdx.x==1 && blockIdx.x==1)
-  {
-    printf("E=%d V=%d n=%d K=%d\n",E,V,n,K );
-  }
-
-
-
+  /* if(threadIdx.x==0 && blockIdx.x==1)
+  // {
+  //   printf("\nkernel    threadId.x=%d blockid.x=%d E=%d V=%d n=%d K=%d\n",threadIdx.x,blockIdx.x,E,V,n,K );
+  //   // for (var i=0;i<(n) ;i++)
+  //   // printf("%d ",d_rows[i]);
+  //   // printf("\n");
+  //   // printf("rows\n");
+  //   __syncthreads();
+  //  printf("colind\n");
+  //  for(var i=0;i<E;i++)
+  //  printf("%d ",d_colind[i] );
+  //  printf("\n");
+  //  __syncthreads();
+  //  // printf("roff\n" );
+  //  // for(var i=0;i<V+1;i++)
+  //  // printf("%d ",d_roff[i]);
+  //  // printf("\n");
+  //  // printf("rlen\n");
+  //  // for(var i=0;i<V;i++)
+  //  // printf("%d ",d_rlen[i]);
+  //  // printf("\n");
+  //
+  //
+  //
+  // } */
 
 
 
@@ -119,20 +137,14 @@ __global__ void getmajorsupport(uui* d_colind, uui* d_roff, uui* d_rows, uui* d_
         atomicAdd(d_supp + io + t , count);
       }
     }
-    for(var x = V*blockIdx.x, i=0; i<V/*x< V*(blockIdx.x + 1)*/ ; i++,x++){
-      atomicAnd(bitmap + x , 0);
-    }
-    //atomicAnd(bitmap + (V * blockIdx.x) + c , 0);
+    // for(var x = V*blockIdx.x, i=0; i<V/*x< V*(blockIdx.x + 1)*/ ; i++,x++){
+    //   atomicAnd(bitmap + x , 0);
+    // }
+    atomicAnd(bitmap + (V * blockIdx.x) + c , 0);
     //reset_bitmap<<< GS,BS >>> (bitmap, blockIdx.x,V);
   }
+  __syncthreads();
 }
-
-
-
-
-
-
-
 
 
 
@@ -343,6 +355,7 @@ int main(int argc, char *argv[]){
       cout<<"Calling Kernel"<<endl;
       printf("E=%d V=%d n=%d K=%d\n",g.E,g.V,g.n,k );
       getmajorsupport<<<GS,BS>>>(d_colind1,d_roff1,d_rows1,d_rlen1,d_bitmap1,g.V,g.E,g.n,d_support1,k);
+      cudaDeviceSynchronize();
       cout<<"Out of kernel"<<endl;
       call=0;
     }
