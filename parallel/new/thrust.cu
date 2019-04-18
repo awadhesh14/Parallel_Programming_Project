@@ -22,7 +22,12 @@
 
 using namespace std;
 
+__global__ void line89 (int *d_dstp, int *d_srcp, int n){
+  int index = threadIdx.x + blockDim.x*blockIdx.x;
+  if(index >=0 && index < n)
+    d_dstp [ d_srcp[index] ] =index;
 
+}
 
 int main()
 {
@@ -65,18 +70,18 @@ int main()
       hist[v1]++;
 
   }
-  for( i = 0; i < hist.size(); i++)
-        cout << "hist[" << i << "] = " << hist[i] << endl;
+  // for( i = 0; i < hist.size(); i++)
+  //       cout << "hist[" << i << "] = " << hist[i] << endl;
 
     thrust::sequence(srcp.begin(), srcp.end(),0);
 
-    for(i = 0; i < srcp.size(); i++)
-    cout << "srcp[" << i << "] = " << srcp[i] << endl;
+    // for(i = 0; i < srcp.size(); i++)
+    // cout << "srcp[" << i << "] = " << srcp[i] << endl;
 
     thrust::sort_by_key(hist.begin(), hist.begin() + n, srcp.begin(),thrust::greater<int>());
 
-    for(i = 0; i < srcp.size(); i++)
-    cout << "srcp[" << i << "] = " << srcp[i] << endl;
+    // for(i = 0; i < srcp.size(); i++)
+    // cout << "srcp[" << i << "] = " << srcp[i] << endl;
 
     // for(i=0;i<n;i++)
     // {
@@ -90,21 +95,9 @@ int main()
       cout << "dstp[" << i << "] = " << dstp[i] << endl;
     thrust::device_vector<int> u(m);
     thrust::device_vector<int> v(m);
-
-
-
-
-
+    
 
 return 0;
 
-
-}
-
-
-__global__ line89 (int *d_dstp, int *d_srcp, int n){
-  int index = threadIdx.x + blockDim.x*blockIdx.x;
-  if(index >=0 && index < n)
-    d_dstp [ d_srcp[index] ] index;
 
 }
