@@ -5,7 +5,6 @@
 #include <functional>
 #include <iostream>
 #include <bits/stdc++.h>
-#include <algorithm>
 
 #include <climits>
 #include<cuda.h>
@@ -44,7 +43,7 @@ int main()
   getline(fin,temp); // reading the description line 2
 
   //int temp_e;          // temperory edge because edge weight is useless
-  int u,v,n,m;             // the v1,v2 of edges
+  int u1,v1,n,m;             // the v1,v2 of edges
 
   fin >> n >> n >> m ;       // reading the MxN graph and edges
   cout<< n<<" "<< m<<endl;
@@ -61,9 +60,9 @@ int main()
 
   for(i=0;i<m;i++)
   {
-      fin>>u>>v;
-      hist[u]++;
-      hist[v]++;
+      fin>>u1>>v1;
+      hist[u1]++;
+      hist[v1]++;
 
   }
   for( i = 0; i < hist.size(); i++)
@@ -79,28 +78,33 @@ int main()
     for(i = 0; i < srcp.size(); i++)
     cout << "srcp[" << i << "] = " << srcp[i] << endl;
 
-    for(i=0;i<n;i++)
-    {
-        dstp[srcp[i]]=i;
-    }
+    // for(i=0;i<n;i++)
+    // {
+    //     dstp[srcp[i]]=i;
+    // }
 
-    fin.close();
-    fin.open(infile.c_str());
-    getline(fin,temp);        // readint the description line 1
-    getline(fin,temp);        // reading the description line 2
-    fin >> n >> n >> m ;      // reading the MxN graph and edges
-    cout<< n<<" "<< m<<endl;
-    int u_,v_;
-    for(i=0;i<m;i++){
-        fin>>u>>v;
-        u_ = dstp[u];
-        v_ = dstp[v];
-        
-    }
+    int *d_dstp = thrust::raw_pointer_cast(&dstp[0]);
+    int *d_srcp = thrust::raw_pointer_cast(&srcp[0]);
+    line89<<< n/1024 + 1 , 1024>>>(d_dstp, d_srcp, n);
+    for(i = 0; i < dstp.size(); i++)
+      cout << "dstp[" << i << "] = " << dstp[i] << endl;
+    thrust::device_vector<int> u(m);
+    thrust::device_vector<int> v(m);
+
+
+
 
 
 
 return 0;
 
+
+}
+
+
+__global__ line89 (int *d_dstp, int *d_srcp, int n){
+  int index = threadIdx.x + blockDim.x*blockIdx.x;
+  if(index >=0 && index < n)
+    d_dstp [ d_srcp[index] ] index;
 
 }
