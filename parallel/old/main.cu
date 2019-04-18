@@ -20,8 +20,8 @@
 #include <thrust/device_vector.h>
 
 
-#define GS 1024
-#define BS 1024
+#define GS 10
+#define BS 1
 
 using namespace std;
 
@@ -66,21 +66,38 @@ __global__ void getmajorsupport(uui* d_colind, uui* d_roff, uui* d_rows, uui* d_
 
   __shared__ int broadcast[BS]; //TODO: 2d array! why?
 
+  if(threadIdx.x==1 && blockIdx.x==1)
+  {
+    printf("E=%d V=%d n=%d K=%d\n",E,V,n,K );
+  }
+
+
+
+
+
+
   var i,io_s,io_e,j,jo_s,jo_e,jo,io,c,count,k;
   for (var s = 0 ; s<n ; s+=gridDim.x){
+    printf("Inside kernel\n");
+
     i = d_rows[s];
     io_s = d_roff[i];
     io_e = io_s + d_rlen[i];
+    printf("Inside 4\n");
     for (io=io_s ; io < io_e ; io += blockDim.x){
+      printf("Inside 5, io=%d", io);
       c = (io + threadIdx.x < io_e) ? d_colind[io + threadIdx.x] : -1;
+      printf("Inside 6, c=%d  ", c);
       if (c > -1){
         atomicOr ((bitmap + (V * blockIdx.x) +c) , 1);
         broadcast[threadIdx.x] = c;
+        printf("Inside 1\n");
       }
       __syncthreads();
 
       for (var t=0 ; t < blockDim.x ; t++){
         j = broadcast[t];
+        printf("Inside 2\n");
         if (j == -1) break;
         count = 0;
         jo_s = d_roff[j];
@@ -90,21 +107,23 @@ __global__ void getmajorsupport(uui* d_colind, uui* d_roff, uui* d_rows, uui* d_
           if(bitmap[V * blockIdx.x + k] == 1){
             count ++;
             atomicAdd(d_supp + jo , 1);
-            find<<<  E/1024 +1, 1024 >>>(d_colind, k , /*&L,*/ io_s, d_rlen[i]);
-            // for(L=0; L <= d_rlen[i] ; L++)
-            //   if (d_colind[io_s + a] == k)
-            //     break;
+            // find<<<  E/1024 +1, 1024 >>>(d_colind, k , /*&L,*/ io_s, d_rlen[i]);
+            for(L=0; L <= d_rlen[i] ; L++)
+              if (d_colind[io_s + L] == k)
+                break;
+            printf("Before: i=%d, j=%d, k=%d, l=%d\n",i,j,k,L);
             atomicAdd(d_supp + io_s + L , 1);
+            printf("After: i=%d, j=%d, k=%d, l=%d\n",i,j,k,L);
           }
         }
         atomicAdd(d_supp + io + t , count);
       }
     }
-    // for(var x = V*blockIdx.x, i=0; i<V/*x< V*(blockIdx.x + 1)*/ ; i++,x++){
-    //   atomicAnd(bitmap + x , 0);
-    // }
+    for(var x = V*blockIdx.x, i=0; i<V/*x< V*(blockIdx.x + 1)*/ ; i++,x++){
+      atomicAnd(bitmap + x , 0);
+    }
     //atomicAnd(bitmap + (V * blockIdx.x) + c , 0);
-    reset_bitmap<<< GS,BS >>> (bitmap, blockIdx.x,V);
+    //reset_bitmap<<< GS,BS >>> (bitmap, blockIdx.x,V);
   }
 }
 
@@ -126,6 +145,7 @@ void readGraph(string filename, G *g){
   // infile ="../../../input/"      + name + ".mmio" ; //  ../../../input/amazon0302_adj.mmio
   // outfile="../../output/serial/" + name + ".txt"  ; //  dataset+"-out.txt";
   infile =filename;
+  cout<<infile<<endl;
 
   fin.open(infile.c_str());    // opening the input file
   fout.open(outfile.c_str());  // opening the output file
@@ -137,8 +157,8 @@ void readGraph(string filename, G *g){
   var temp_edge;          // temperory edge because edge weight is useless
   var u,v;             // the v1,v2 of edges
 
-  fin >> g->V >> g->V >> g->E ;       // reading the MxN graph and edges
-  //cout<< g->V<<" "<< g->E<<endl;      // just checking if it worked
+  fin >> g->V >> g->E ;       // reading the MxN graph and edges
+  cout<< g->V<<" "<< g->E<<endl;      // just checking if it worked
 
 
 
@@ -222,12 +242,12 @@ void readGraph(string filename, G *g){
 
   fin.close();
   fin.open(infile.c_str());
-  getline(fin,temp); // readint the description line 1
-  getline(fin,temp); // reading the description line 2
+  // getline(fin,temp); // readint the description line 1
+  // getline(fin,temp); // reading the description line 2
 
   //Read V and E
   //fscanf(infp, "%ld %ld\n", &(g->n), &g->E);
-  fin>>(g->V)>>(g->V)>>g->E;
+  fin>>g->V>>g->E;
   for(var i = 0; i < g->E; i++)
     g->colind[i] = 0;
   //Read the edges
@@ -235,7 +255,7 @@ void readGraph(string filename, G *g){
   for(var i=0 ; i<g->E ; i++){
 
 
-    fin>>u>>v>>temp_edge;
+    fin>>u>>v;
     if(u>v){
       g->colind[ temp_num_edges[u]  ] = v;
       temp_num_edges[u]++;
@@ -248,7 +268,8 @@ void readGraph(string filename, G *g){
 
   }
   fin.close();
-
+  printf("readGraph E=%d V=%d n=%d \n",g->E,g->V,g->n );
+cout<<"Read the graph"<<endl;
 /**********************************************************************************************************/
 
 }
@@ -259,7 +280,9 @@ int main(int argc, char *argv[]){
 
   G g;
   // cout<<endl<<"checkpoint 1"<<endl;
-  readGraph("../../test_dir.txt",&g);
+  char* file_path=argv[1];
+  readGraph(file_path,&g);
+  printf("main E=%d V=%d n=%d\n",g.E,g.V,g.n );
   // cout<<"checkpoint 2"<<endl;
 
   // cout<<"rows"<<endl;
@@ -311,13 +334,22 @@ int main(int argc, char *argv[]){
   var *d_bitmap1 = thrust::raw_pointer_cast(&bitmap[0]);
 
   var k=3;
-  while(1){
+  var call=1;
+  while(call){
     if (k>3)
       break;
     if(k==3)
-        getmajorsupport<<<GS,BS>>>(d_colind1,d_roff1,d_rows1,d_rlen1,d_bitmap1,g.V,g.E,g.n,d_support1,k);
+    {
+      cout<<"Calling Kernel"<<endl;
+      printf("E=%d V=%d n=%d K=%d\n",g.E,g.V,g.n,k );
+      getmajorsupport<<<GS,BS>>>(d_colind1,d_roff1,d_rows1,d_rlen1,d_bitmap1,g.V,g.E,g.n,d_support1,k);
+      cout<<"Out of kernel"<<endl;
+      call=0;
+    }
   }
-  for(var i = 0; i < support.size(); i++)
+  int i;
+    cout << "support[" << 0 << "] = " << support[0] << endl;
+  for( i = 0; i < support.size(); i++)
     cout << "support[" << i << "] = " << support[i] << endl;
     return 0;
 
