@@ -16,6 +16,9 @@
 #include <cuda_runtime_api.h>
 #include <math.h>
 
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
+
 
 #define GS 1024
 #define BS 1024
@@ -163,7 +166,7 @@ void readGraph(string filename, G *g){
     }
 
 
-  }
+  }1.23 crores
   fin.close();
 
 /**********************************************************************************************************/
@@ -175,8 +178,6 @@ void readGraph(string filename, G *g){
 int main(int argc, char *argv[]){
 
   G g;
-  int gs=GS;
-  int k = 100;
   // cout<<endl<<"checkpoint 1"<<endl;
   readGraph("../../test_dir.txt",&g);
   // cout<<"checkpoint 2"<<endl;
@@ -202,7 +203,93 @@ int main(int argc, char *argv[]){
   // }
   // cout<<endl;
 
+  // cudaMalloc( (void **) &d_rows, size );
+  // cudaMalloc( (void **) &d_colind, size );
+  // cudaMalloc( (void **) &d_roff, size );
+  // cudaMalloc( (void **) &d_rlen, size );g->
+  //
+  // for (var i=0;i< g->n ;i++)
+  //   rows[i] =
+
+  thrust::device_vector<uui> d_rows ( g.rows , g.rows + g.n);
+  thrust::device_vector<uui> d_colind (g.colind , g.colind+ g.E);
+  thrust::device_vector<uui> d_roff (g.roff , g.roff + g.V + 1 );
+  thrust::device_vector<uui> d_rlen (g.rlen , g.rlen + g.N);
+  thrust::device_vector<uui> e_weak(m);
+
+
+  int k=100;
+  while(change != 0){
+    change = 0;
+
+  }
 
 
 
+
+}
+
+
+//cudamalloc colind , roff , rows , rlen , bitmap , E , V ,n , supp ;
+__global__ void getmajorsupport(){
+  
+  __shared__ int broadcast[blockDim.x]; //TODO: 2d array! why?
+
+  var i,io_s,io_e,j,jo_s,jo_e,jo,io,c,j,count,k;
+  for (var s = 0 ; s<n ; s+=gridDim.x){
+    i = d_rows[s];
+    io_s = d_roff[i];
+    io_e = ios + d_rlen[i];
+    for (io=io_s ; io < io_e ; io += blockDim.x){
+      c = (io + threadIdx.x < io_e) ? d_colind[io + threadIdx.x] : -1;
+      if (c > -1){
+        atomicOr ((bitmap + (V * blockIdx.x) +c) , 1);
+        broadcast[threadIdx.x] = c;
+      }
+      __syncthreads();
+
+      for (var t=0 ; t < blockDim.x ; t++){
+        j = broadcast[t];
+        if (j == -1) break;
+        count = 0;
+        jo_s = d_roff[j];
+        jo_e = jo_s + d_rlen[j];
+        for(jo = jo_s + threadIdx.x ; jo < jo_e ; jo += blockDim.x){
+          k = d_colind[jo];
+          if(bitmap[V * blockIdx.x + k] == 1){
+            count ++;
+            atomicAdd(d_supp + jo , 1);
+            find<<<  d_E/1024 +1, 1024 >>>(d_colind, k , &L, io_s, d_rlen[i]);
+            // for(L=0; L <= d_rlen[i] ; L++)
+            //   if (d_colind[io_s + a] == k)
+            //     break;
+            atomicAdd(d_supp + io_s + L , 1);
+          }
+        }
+        atomicAdd(d_supp + io + t , count);
+      }
+    }
+    // for(var x = V*blockIdx.x, i=0; i<V/*x< V*(blockIdx.x + 1)*/ ; i++,x++){
+    //   atomicAnd(bitmap + x , 0);
+    // }
+    atomicAnd(bitmap + (V * blockIdx.x) + c , 0);
+    reset_bitmap<<<    >>> (bitmap, blockIdx.x);
+  }
+}
+
+
+__device__ void find(var *data, var value, int *min_idx, var io_s, var rlen_i){
+    int idx = threadIdx.x + blockDim.x*blockIdx.x;
+    if(idx >= io_s && idx<= rlen_i){
+      if(data[idx] == value)
+          atomicMin(min_idx, idx);
+    }
+}
+
+__device__ void reset_bitmap(bool *bitmap , var blockid, var V){
+    int index  = threadIdx.x + blockDim.x*blockIdx.x;
+
+    if(index >= V*blockid && index < V*(blockid+1)){
+      atomicAnd(bitmap + index , 0);
+    }
 }
