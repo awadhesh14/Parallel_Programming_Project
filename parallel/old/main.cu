@@ -354,16 +354,23 @@ int main(int argc, char *argv[]){
     {
       cout<<"Calling Kernel"<<endl;
       printf("E=%d V=%d n=%d K=%d\n",g.E,g.V,g.n,k );
+      cudaEventCreate(&start);
+  cudaEventRecord(start,0);
       getmajorsupport<<<GS,BS>>>(d_colind1,d_roff1,d_rows1,d_rlen1,d_bitmap1,g.V,g.E,g.n,d_support1,k);
+      cudaEventCreate(&stop);
+ cudaEventRecord(stop,0);
+ cudaEventSynchronize(stop);
       cudaDeviceSynchronize();
       cout<<"Out of kernel"<<endl;
       call=0;
     }
   }
-  int i;
-    cout << "support[" << 0 << "] = " << support[0] << endl;
-  for( i = 0; i < support.size(); i++)
-    cout << "support[" << i << "] = " << support[i] << endl;
-    return 0;
+  // int i;
+  //   cout << "support[" << 0 << "] = " << support[0] << endl;
+  // for( i = 0; i < support.size(); i++)
+  //   cout << "support[" << i << "] = " << support[i] << endl;
+  //   return 0;
+  cudaEventElapsedTime(&elapsedTime, start,stop);
+ printf("Elapsed time : %f ms\n" ,elapsedTime);
 
 }
