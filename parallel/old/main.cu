@@ -163,13 +163,13 @@ void readGraph(string filename, G *g){
   fout.open(outfile.c_str());  // opening the output file
 
   string temp;
-  //getline(fin,temp); // readint the description line 1
-  //getline(fin,temp); // reading the description line 2
+  getline(fin,temp); // readint the description line 1
+  getline(fin,temp); // reading the description line 2
 
   var temp_edge;          // temperory edge because edge weight is useless
   var u,v;             // the v1,v2 of edges
 
-  fin >> g->V >> g->E ;       // reading the MxN graph and edges
+  fin >> g->V>>g->V >> g->E ;       // reading the MxN graph and edges
   cout<< g->V<<" "<< g->E<<endl;      // just checking if it worked
 
 
@@ -195,7 +195,7 @@ void readGraph(string filename, G *g){
 
 /**************************increase row offset and set flag for non empty row********************************/
 	for (var i=0; i<g->E; ++i) {           //thrust
-		fin >> u >> v;
+		fin >> u >> v>>temp_int;
     //cout<< u <<" "<<v <<endl;
 
     if(u > v)
@@ -254,12 +254,12 @@ void readGraph(string filename, G *g){
 
   fin.close();
   fin.open(infile.c_str());
-  // getline(fin,temp); // readint the description line 1
-  // getline(fin,temp); // reading the description line 2
+  getline(fin,temp); // readint the description line 1
+  getline(fin,temp); // reading the description line 2
 
   //Read V and E
   //fscanf(infp, "%ld %ld\n", &(g->n), &g->E);
-  fin>>g->V>>g->E;
+  fin>>g->V>>g->V>>g->E;
   for(var i = 0; i < g->E; i++)
     g->colind[i] = 0;
   //Read the edges
@@ -267,7 +267,7 @@ void readGraph(string filename, G *g){
   for(var i=0 ; i<g->E ; i++){
 
 
-    fin>>u>>v;
+    fin>>u>>v>>temp_int;
     if(u>v){
       g->colind[ temp_num_edges[u]  ] = v;
       temp_num_edges[u]++;
